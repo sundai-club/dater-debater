@@ -22,30 +22,22 @@ export default function Home() {
   const [player2, setPlayer2] = useState(celebrities[1]);
   const [mode, setMode] = useState(modes[0]);
   const [topic, setTopic] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
+    [],
+  );
   const [startCount, setStartCount] = useState(0);
   const callScriptMutation = api.callPythonScript.useMutation();
   const [result, setResult] = useState<{
     messages: { character: string; content: string }[];
   } | null>(null);
-  const [characters, setCharacters] = useState<any>("");
+  const [characters, setCharacters] = useState<string>("");
 
-  const handleCallScript = async () => {
-    setResult(null);
-    const characterArray = characters
-      .split(",")
-      .map((char: any) => char.trim());
-    const response = await callScriptMutation.mutateAsync({
-      characters: characterArray,
-    });
-    setResult(response.scriptResult);
-  };
   const handleReset = () => {
     setStartCount(0);
     setMessages([]);
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     setStartCount((prevCount) => prevCount + 1);
     // Logic to start the date/debate and generate messages
     setMessages([
@@ -55,10 +47,18 @@ export default function Home() {
         text: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
       },
     ]);
-    setCharacters([player1, player2]);
-    handleCallScript();
+    setCharacters([player1, player2].join(", "));
 
-    result?.messages.forEach((resp: any) => {
+    // Incorporated handleCallScript logic
+    setResult(null);
+    const characterArray = [player1, player2];
+    const response = await callScriptMutation.mutateAsync({
+      characters: characterArray,
+    });
+    setResult(response.scriptResult);
+
+    console.log("result after script call", response.scriptResult);
+    response.scriptResult?.messages.forEach((resp) => {
       const newMessage = { sender: resp.character, text: resp.content };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
