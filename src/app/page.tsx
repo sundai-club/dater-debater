@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { api } from "@/trpc/react";
 const celebrities = [
   "Donald Trump",
   "Kamala Harris",
@@ -24,7 +24,22 @@ export default function Home() {
   const [topic, setTopic] = useState("");
   const [messages, setMessages] = useState([]);
   const [startCount, setStartCount] = useState(0);
+  const callScriptMutation = api.callPythonScript.useMutation();
+  const [result, setResult] = useState<{
+    messages: { character: string; content: string }[];
+  } | null>(null);
+  const [characters, setCharacters] = useState<any>("");
 
+  const handleCallScript = async () => {
+    setResult(null);
+    const characterArray = characters
+      .split(",")
+      .map((char: any) => char.trim());
+    const response = await callScriptMutation.mutateAsync({
+      characters: characterArray,
+    });
+    setResult(response.scriptResult);
+  };
   const handleReset = () => {
     setStartCount(0);
     setMessages([]);
@@ -40,6 +55,13 @@ export default function Home() {
         text: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
       },
     ]);
+    setCharacters([player1, player2]);
+    handleCallScript();
+
+    result?.messages.forEach((resp: any) => {
+      const newMessage = { sender: resp.character, text: resp.content };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
   };
 
   return (
