@@ -5,14 +5,15 @@ import { api } from "@/trpc/react";
 
 export default function Home() {
   const callScriptMutation = api.callPythonScript.useMutation();
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    messages: { character: string; content: string }[];
+  } | null>(null);
   const [characters, setCharacters] = useState<string>("");
 
   const handleCallScript = async () => {
     setResult(null);
     const characterArray = characters.split(",").map((char) => char.trim());
     const response = await callScriptMutation.mutateAsync({
-      text: "Hello",
       characters: characterArray,
     });
     setResult(response.scriptResult);
@@ -44,7 +45,13 @@ export default function Home() {
         {callScriptMutation.isPending ? (
           <p>Loading...</p>
         ) : result ? (
-          <pre>{result}</pre>
+          <div>
+            {result.messages.map((message, index) => (
+              <div key={index} className="mb-2">
+                <strong>{message.character}:</strong> {message.content}
+              </div>
+            ))}
+          </div>
         ) : (
           <p>Enter characters and click the button to call the script</p>
         )}

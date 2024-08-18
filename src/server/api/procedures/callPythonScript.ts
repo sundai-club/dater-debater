@@ -7,10 +7,18 @@ import path from "path";
 import { quote as shellQuote } from "shlex";
 import { env } from "@/env";
 
+export const pythonResultSchema = z.object({
+  messages: z.array(
+    z.object({
+      character: z.string(),
+      content: z.string(),
+    }),
+  ),
+});
+
 export const callPythonScript = publicProcedure
   .input(
     z.object({
-      text: z.string(),
       characters: z.array(z.string()),
     }),
   )
@@ -33,5 +41,9 @@ export const callPythonScript = publicProcedure
       python3 ${shellQuote(pythonScriptPath)} --api_key ${shellQuote(env.OPENAI_API_KEY)} --characters ${shellQuote(input.characters.join(","))} --num_messages 6 --mode debate --max_sentences 3 --theme "The future of artificial intelligence"
     `);
     console.log("runRes", JSON.stringify(runRes, null, 2));
-    return { scriptResult: runRes.stdout };
+
+    // Parse the result using the schema
+    const parsedResult = pythonResultSchema.parse(JSON.parse(runRes.stdout));
+
+    return { scriptResult: parsedResult };
   });
