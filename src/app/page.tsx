@@ -38,6 +38,7 @@ export default function Home() {
   };
 
   const handleStart = async () => {
+    if (!player1 || !player2 || !mode) return; // Check if all required fields are filled
     setStartCount((prevCount) => prevCount + 1);
     // Logic to start the date/debate and generate messages
     setMessages([
