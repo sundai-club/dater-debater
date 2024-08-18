@@ -82,29 +82,30 @@ def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sen
     
     while True:
         have_conversation(llm1, llm2, theme, num_messages, is_debate)
+        break
         
-        action = input("Choose an action (continue/comment/share/quit): ").lower()
+        # action = input("Choose an action (continue/comment/share/quit): ").lower()
         
-        while action not in ['continue', 'comment', 'share', 'quit']:
-            print("Invalid action. Please try again.")
-            action = input("Choose an action (continue/comment/share/quit): ").lower()
+        # while action not in ['continue', 'comment', 'share', 'quit']:
+        #     print("Invalid action. Please try again.")
+        #     action = input("Choose an action (continue/comment/share/quit): ").lower()
         
         
-        if action == 'continue':
-            print("Continuing the conversation...")
-            continue
-        elif action == 'comment':
-            user_comment = input("Enter your comment as an observer: ")
-            prompt = f"An observer in the audience made this comment: '{user_comment}'. How do you respond to this?"
-            print(f"{character1} responds: {llm1.generate_response(prompt)}")
-            print(f"{character2} responds: {llm2.generate_response(prompt)}")
-        elif action == 'share':
-            print("Sharing functionality not implemented yet.")
-        elif action == 'quit':
-            print("Thank you for using the LLM Conversation App!")
-            break
-        else:
-            print("Invalid action. Please try again.")
+        # if action == 'continue':
+        #     print("Continuing the conversation...")
+        #     continue
+        # elif action == 'comment':
+        #     user_comment = input("Enter your comment as an observer: ")
+        #     prompt = f"An observer in the audience made this comment: '{user_comment}'. How do you respond to this?"
+        #     print(f"{character1} responds: {llm1.generate_response(prompt)}")
+        #     print(f"{character2} responds: {llm2.generate_response(prompt)}")
+        # elif action == 'share':
+        #     print("Sharing functionality not implemented yet.")
+        # elif action == 'quit':
+        #     print("Thank you for using the LLM Conversation App!")
+        #     break
+        # else:
+        #     print("Invalid action. Please try again.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LLM Conversation App")
