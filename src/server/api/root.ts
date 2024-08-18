@@ -1,3 +1,4 @@
+import { callPythonScript } from "@/server/api/procedures/callPythonScript";
 import { exampleProcedure } from "@/server/api/procedures/exampleProcedure";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   exampleProcedure,
+  callPythonScript,
   // add procedures and subrouters here
 });
 
