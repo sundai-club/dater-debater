@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { api } from "@/trpc/react";
 const celebrities = [
   "Donald Trump",
   "Kamala Harris",
@@ -22,9 +22,24 @@ export default function Home() {
   const [player2, setPlayer2] = useState(celebrities[1]);
   const [mode, setMode] = useState(modes[0]);
   const [topic, setTopic] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
+    [],
+  );
+  const [startCount, setStartCount] = useState(0);
+  const callScriptMutation = api.callPythonScript.useMutation();
+  const [result, setResult] = useState<{
+    messages: { character: string; content: string }[];
+  } | null>(null);
+  const [characters, setCharacters] = useState<string>("");
 
-  const handleStart = () => {
+  const handleReset = () => {
+    setStartCount(0);
+    setMessages([]);
+  };
+
+  const handleStart = async () => {
+    if (!player1 || !player2 || !mode) return; // Check if all required fields are filled
+    setStartCount((prevCount) => prevCount + 1);
     // Logic to start the date/debate and generate messages
     setMessages([
       { sender: player1, text: `Hello, I'm ${player1}!` },
@@ -33,6 +48,21 @@ export default function Home() {
         text: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
       },
     ]);
+    setCharacters([player1, player2].join(", "));
+
+    // Incorporated handleCallScript logic
+    setResult(null);
+    const characterArray = [player1, player2];
+    const response = await callScriptMutation.mutateAsync({
+      characters: characterArray,
+    });
+    setResult(response.scriptResult);
+
+    console.log("result after script call", response.scriptResult);
+    response.scriptResult?.messages.forEach((resp) => {
+      const newMessage = { sender: resp.character, text: resp.content };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
   };
 
   return (
@@ -44,7 +74,10 @@ export default function Home() {
           <select
             className="rounded border p-2"
             value={player1}
-            onChange={(e) => setPlayer1(e.target.value)}
+            onChange={(e) => {
+              setPlayer1(e.target.value);
+              handleReset();
+            }}
           >
             {celebrities.map((celeb) => (
               <option key={celeb} value={celeb}>
@@ -55,7 +88,10 @@ export default function Home() {
           <select
             className="rounded border p-2"
             value={player2}
-            onChange={(e) => setPlayer2(e.target.value)}
+            onChange={(e) => {
+              setPlayer2(e.target.value);
+              handleReset();
+            }}
           >
             {celebrities.map((celeb) => (
               <option key={celeb} value={celeb}>
@@ -68,7 +104,10 @@ export default function Home() {
         <select
           className="mb-4 w-full rounded border p-2"
           value={mode}
-          onChange={(e) => setMode(e.target.value)}
+          onChange={(e) => {
+            setMode(e.target.value);
+            handleReset();
+          }}
         >
           {modes.map((m) => (
             <option key={m} value={m}>
@@ -89,7 +128,7 @@ export default function Home() {
             className="rounded-r bg-blue-500 px-4 py-2 text-white"
             onClick={handleStart}
           >
-            Start
+            {startCount === 0 ? "Start" : "Continue"}
           </button>
         </div>
 
