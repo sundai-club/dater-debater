@@ -17,8 +17,15 @@ export const callPythonScript = publicProcedure
     console.log("llmConversationDir", llmConversationDir);
     const pythonScriptPath = path.join(llmConversationDir, "main.py");
     const requirementsPath = path.join(llmConversationDir, "requirements.txt");
+
+    // Install requirements separately
+    await runScript(`
+      pip3 install --break-system-packages -r ${shellQuote(requirementsPath)}
+    `);
+
+    // Run the main Python script
     const runRes = await runScript(`
-      pip3 install --break-system-packages -r ${shellQuote(requirementsPath)} && python3 ${shellQuote(pythonScriptPath)} --api_key ${shellQuote(env.OPENAI_API_KEY)} --characters "Elon Musk,Taylor Swift" --num_messages 6 --mode debate --max_sentences 3 --theme "The future of artificial intelligence"
+      python3 ${shellQuote(pythonScriptPath)} --api_key ${shellQuote(env.OPENAI_API_KEY)} --characters "Elon Musk,Taylor Swift" --num_messages 6 --mode debate --max_sentences 3 --theme "The future of artificial intelligence"
     `);
     console.log("runRes", JSON.stringify(runRes, null, 2));
     return { scriptResult: runRes.stdout };
