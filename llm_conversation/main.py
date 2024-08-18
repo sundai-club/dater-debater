@@ -39,19 +39,22 @@ def have_conversation(llm1, llm2, theme, num_messages, is_debate):
         prompt = f"Let's debate about {theme}. Present your opening argument."
     else:
         prompt = f"Let's have a romantic date and talk about {theme}. Start flirting and try to make the other person fall in love with you."
-    
+    output = {'messages': []} 
     for i in range(num_messages):
         if i % 2 == 0:
             response = llm1.generate_response(prompt)
-            print(f"{llm1.character}: {response}")
-            print()
+            output['messages'].append({'character': llm1.character, 'content': response})
+            # print(f"{llm1.character}: {response}")
+            # print()
             prompt = response
         else:
             response = llm2.generate_response(prompt)
-            print(f"{llm2.character}: {response}")
-            print()
+            output['messages'].append({'character': llm2.character, 'content': response})
+            # print(f"{llm2.character}: {response}")
+            # print()
             prompt = response
-
+    import json
+    print(json.dumps(output, indent=4))
 def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sentences=2, theme=None):
     # Load .env file
     load_dotenv()
@@ -64,7 +67,7 @@ def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sen
 
     os.environ["OPENAI_API_KEY"] = api_key
 
-    print("Welcome to the LLM Conversation App!")
+    # print("Welcome to the LLM Conversation App!")
     
     if characters:
         character1, character2 = characters.split(',')
@@ -78,7 +81,7 @@ def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sen
 
     
     interaction_type = "debate" if is_debate else "date"
-    print(f"\n{character1} and {character2} will now {interaction_type} about {theme}!\n")
+    # print(f"\n{character1} and {character2} will now {interaction_type} about {theme}!\n")
     
     while True:
         have_conversation(llm1, llm2, theme, num_messages, is_debate)
