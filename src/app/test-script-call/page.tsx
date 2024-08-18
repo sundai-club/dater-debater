@@ -15,6 +15,7 @@ export default function Home() {
     const characterArray = characters.split(",").map((char) => char.trim());
     const response = await callScriptMutation.mutateAsync({
       characters: characterArray,
+      theme: "Artificial Intelligence",
     });
     setResult(response.scriptResult);
   };
