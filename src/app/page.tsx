@@ -23,8 +23,15 @@ export default function Home() {
   const [mode, setMode] = useState(modes[0]);
   const [topic, setTopic] = useState("");
   const [messages, setMessages] = useState([]);
+  const [startCount, setStartCount] = useState(0);
+
+  const handleReset = () => {
+    setStartCount(0);
+    setMessages([]);
+  };
 
   const handleStart = () => {
+    setStartCount((prevCount) => prevCount + 1);
     // Logic to start the date/debate and generate messages
     setMessages([
       { sender: player1, text: `Hello, I'm ${player1}!` },
@@ -44,7 +51,10 @@ export default function Home() {
           <select
             className="rounded border p-2"
             value={player1}
-            onChange={(e) => setPlayer1(e.target.value)}
+            onChange={(e) => {
+              setPlayer1(e.target.value);
+              handleReset();
+            }}
           >
             {celebrities.map((celeb) => (
               <option key={celeb} value={celeb}>
@@ -55,7 +65,10 @@ export default function Home() {
           <select
             className="rounded border p-2"
             value={player2}
-            onChange={(e) => setPlayer2(e.target.value)}
+            onChange={(e) => {
+              setPlayer2(e.target.value);
+              handleReset();
+            }}
           >
             {celebrities.map((celeb) => (
               <option key={celeb} value={celeb}>
@@ -68,7 +81,10 @@ export default function Home() {
         <select
           className="mb-4 w-full rounded border p-2"
           value={mode}
-          onChange={(e) => setMode(e.target.value)}
+          onChange={(e) => {
+            setMode(e.target.value);
+            handleReset();
+          }}
         >
           {modes.map((m) => (
             <option key={m} value={m}>
@@ -89,7 +105,7 @@ export default function Home() {
             className="rounded-r bg-blue-500 px-4 py-2 text-white"
             onClick={handleStart}
           >
-            Start
+            {startCount === 0 ? "Start" : "Continue"}
           </button>
         </div>
 
