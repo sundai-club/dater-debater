@@ -133,7 +133,7 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="h-64 overflow-y-auto rounded border p-4">
+        <div className="h-96 overflow-y-auto rounded border p-4">
           {messages.map((message, index) => (
             <div
               key={index}
