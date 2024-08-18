@@ -20,6 +20,7 @@ export const callPythonScript = publicProcedure
   .input(
     z.object({
       characters: z.array(z.string()),
+      theme: z.string(), // Add theme to the input schema
     }),
   )
   .mutation(async ({ input }) => {
@@ -38,7 +39,7 @@ export const callPythonScript = publicProcedure
 
     // Run the main Python script
     const runRes = await runScript(`
-      python3 ${shellQuote(pythonScriptPath)} --api_key ${shellQuote(env.OPENAI_API_KEY)} --characters ${shellQuote(input.characters.join(","))} --num_messages 6 --mode debate --max_sentences 3 --theme "The future of artificial intelligence"
+      python3 ${shellQuote(pythonScriptPath)} --api_key ${shellQuote(env.OPENAI_API_KEY)} --characters ${shellQuote(input.characters.join(","))} --num_messages 6 --mode debate --max_sentences 3 --theme ${shellQuote(input.theme)}
     `);
     console.log("runRes", JSON.stringify(runRes, null, 2));
 

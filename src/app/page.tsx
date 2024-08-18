@@ -22,9 +22,9 @@ export default function Home() {
   const [player2, setPlayer2] = useState(celebrities[1]);
   const [mode, setMode] = useState(modes[0]);
   const [topic, setTopic] = useState("");
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
-    [],
-  );
+  const [messages, setMessages] = useState<
+    { character: string; content: string }[]
+  >([]);
   const [startCount, setStartCount] = useState(0);
   const callScriptMutation = api.callPythonScript.useMutation();
   const [result, setResult] = useState<{
@@ -42,10 +42,10 @@ export default function Home() {
     setStartCount((prevCount) => prevCount + 1);
     // Logic to start the date/debate and generate messages
     setMessages([
-      { sender: player1, text: `Hello, I'm ${player1}!` },
+      { character: player1, content: `Hello, I'm ${player1}!` },
       {
-        sender: player2,
-        text: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
+        character: player2,
+        content: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
       },
     ]);
     setCharacters([player1, player2].join(", "));
@@ -55,12 +55,13 @@ export default function Home() {
     const characterArray = [player1, player2];
     const response = await callScriptMutation.mutateAsync({
       characters: characterArray,
+      theme: topic || "Artificial Intelligence",
     });
     setResult(response.scriptResult);
 
     console.log("result after script call", response.scriptResult);
     response.scriptResult?.messages.forEach((resp) => {
-      const newMessage = { sender: resp.character, text: resp.content };
+      const newMessage = { character: resp.character, content: resp.content };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
   };
@@ -136,10 +137,10 @@ export default function Home() {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`mb-2 ${message.sender === player1 ? "text-left" : "text-right"}`}
+              className={`mb-2 ${message.character === player1 ? "text-left" : "text-right"}`}
             >
-              <span className="font-bold">{message.sender}: </span>
-              {message.text}
+              <span className="font-bold">{message.character}: </span>
+              {message.content}
             </div>
           ))}
         </div>

@@ -55,7 +55,7 @@ def have_conversation(llm1, llm2, theme, num_messages, is_debate):
             prompt = response
     import json
     print(json.dumps(output, indent=4))
-def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sentences=2, theme=None):
+def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sentences=2, theme="Artificial Intelligence"):
     # Load .env file
     load_dotenv()
 
