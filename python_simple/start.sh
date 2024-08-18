@@ -1,0 +1,1 @@
+python main.py --characters "Elon Musk,Taylor Swift" --mode debate --theme "The Future of AI"
