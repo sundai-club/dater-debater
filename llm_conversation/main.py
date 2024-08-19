@@ -9,13 +9,18 @@ class LLM:
         self.character = character
         self.max_sentences = max_sentences
 
-    def generate_response(self, prompt):
-        response = completion(
-            model="gpt-4o-mini",  # Updated model name
-            messages=[
+    def generate_response(self, prompt, messages=None):
+        messages_local = [
                 {"role": "system", "content": f"You are {self.character}. Respond in character. Limit your response to {self.max_sentences} sentences."},
                 {"role": "user", "content": prompt}
             ]
+        if messages:
+            messages_local.extend(messages)
+        print("Generated messages for ", "self.character: ", messages_local)
+        print(" > Prompt: ", prompt)
+        response = completion(
+            model="gpt-4o-mini",  # Updated model name
+            messages=messages_local
         )
         return response['choices'][0]['message']['content']
 
@@ -34,28 +39,40 @@ def choose_characters():
 def get_theme():
     return input("Enter a theme for the conversation: ")
 
-def have_conversation(llm1, llm2, theme, num_messages, is_debate):
+def have_conversation(llm1, llm2, theme, num_messages, is_debate, messages=None):
     if is_debate:
         prompt = f"Let's debate about {theme}. Present your opening argument."
     else:
         prompt = f"Let's have a romantic date and talk about {theme}. Start flirting and try to make the other person fall in love with you."
+    # Parse existing messages
+    llm1_messages = []
+    llm2_messages = []
+    if messages:
+        for msg in messages:
+            if msg['character'] == llm1.character:
+                llm1_messages.append({"role": "assistant", "content": "You said the following:" + msg['content']})
+                llm1_messages.append({"role": "user", "content": "The other person said the following:" + msg['content']})
+            elif msg['character'] == llm2.character:
+                llm2_messages.append({"role": "assistant", "content": "You said the following:" + msg['content']})
+                llm2_messages.append({"role": "user", "content": "The other person said the following:" + msg['content']})
+    
     output = {'messages': []} 
     for i in range(num_messages):
         if i % 2 == 0:
-            response = llm1.generate_response(prompt)
+            response = llm1.generate_response(prompt, messages=llm1_messages)
             output['messages'].append({'character': llm1.character, 'content': response})
             # print(f"{llm1.character}: {response}")
             # print()
             prompt = response
         else:
-            response = llm2.generate_response(prompt)
+            response = llm2.generate_response(prompt, messages=llm2_messages)
             output['messages'].append({'character': llm2.character, 'content': response})
             # print(f"{llm2.character}: {response}")
             # print()
             prompt = response
     import json
     print(json.dumps(output, indent=4))
-def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sentences=2, theme="Artificial Intelligence"):
+def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sentences=2, theme="Artificial Intelligence", messages=None):
     # Load .env file
     load_dotenv()
 
@@ -84,7 +101,7 @@ def main(api_key=None, characters=None, num_messages=10, is_debate=True, max_sen
     # print(f"\n{character1} and {character2} will now {interaction_type} about {theme}!\n")
     
     while True:
-        have_conversation(llm1, llm2, theme, num_messages, is_debate)
+        have_conversation(llm1, llm2, theme, num_messages, is_debate, messages)
         break
         
         # action = input("Choose an action (continue/comment/share/quit): ").lower()
@@ -118,6 +135,7 @@ if __name__ == "__main__":
     parser.add_argument("--mode", choices=['debate', 'date'], default='debate', help="Interaction mode: debate or date")
     parser.add_argument("--max_sentences", type=int, default=2, help="Maximum number of sentences per response")
     parser.add_argument("--theme", default=None, help="Theme for the conversation")
+    parser.add_argument("--messages", default=None, type=list, help="Messages for the conversation ")
     
     args = parser.parse_args()
-    main(args.api_key, args.characters, args.num_messages, args.mode == 'debate', args.max_sentences, args.theme)
+    main(args.api_key, args.characters, args.num_messages, args.mode == 'debate', args.max_sentences, args.theme, args.messages)

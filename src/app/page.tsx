@@ -39,15 +39,17 @@ export default function Home() {
 
   const handleStart = async () => {
     if (!player1 || !player2 || !mode) return; // Check if all required fields are filled
-    setStartCount((prevCount) => prevCount + 1);
     // Logic to start the date/debate and generate messages
-    setMessages([
-      { character: player1, content: `Hello, I'm ${player1}!` },
-      {
-        character: player2,
-        content: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
-      },
-    ]);
+    if (startCount === 0) {
+      setMessages([
+        { character: player1, content: `Hello, I'm ${player1}!` },
+        {
+          character: player2,
+          content: `Hi ${player1}, I'm ${player2}. Let's ${mode.toLowerCase()}!`,
+        },
+      ]);
+    }
+    setStartCount((prevCount) => prevCount + 1);
     setCharacters([player1, player2].join(", "));
 
     // Incorporated handleCallScript logic
@@ -56,6 +58,7 @@ export default function Home() {
     const response = await callScriptMutation.mutateAsync({
       characters: characterArray,
       theme: topic || "Artificial Intelligence",
+      messages: messages,
     });
     setResult(response.scriptResult);
 
